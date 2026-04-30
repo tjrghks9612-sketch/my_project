@@ -133,10 +133,12 @@ def _plot_ratio(pair: pd.DataFrame, x_col: str, y_col: str, pair_type: str, titl
         x_axis = "_x_bin"
     if pd.api.types.is_numeric_dtype(temp[y_col]) and pair_type != "numeric_categorical":
         summary = temp.groupby(x_axis, dropna=False)[y_col].agg(["mean", "count"]).reset_index()
+        summary = summary.sort_values(x_axis, kind="stable")
         fig = px.bar(summary, x=x_axis, y="mean", text="mean", title=title, labels={x_axis: x_col, "mean": f"{y_col} 평균"})
         fig.update_traces(texttemplate="%{text:.2f}", textposition="outside")
         return fig
     table = pd.crosstab(temp[x_axis].astype(str), temp[y_col].astype(str), normalize="index") * 100
+    table = table.sort_index()
     if table.empty:
         return go.Figure().update_layout(template="plotly_dark", title=title)
     fig = go.Figure()
@@ -159,7 +161,13 @@ def _apply_plotly_layout(fig: go.Figure, title: str, subtitle: str, pair_type: s
         legend={"orientation": "h", "yanchor": "bottom", "y": 1.02, "xanchor": "right", "x": 1},
     )
     fig.update_traces(marker_line_color="rgba(255,255,255,0.16)", marker_line_width=0.6)
-    fig.update_xaxes(automargin=True, tickangle=-35 if pair_type != "numeric_numeric" else 0, gridcolor=PLOT_COLORS["grid"], zerolinecolor="rgba(148,163,184,0.22)")
+    fig.update_xaxes(
+        automargin=True,
+        tickangle=-35 if pair_type != "numeric_numeric" else 0,
+        categoryorder="category ascending",
+        gridcolor=PLOT_COLORS["grid"],
+        zerolinecolor="rgba(148,163,184,0.22)",
+    )
     fig.update_yaxes(automargin=True, gridcolor=PLOT_COLORS["grid"], zerolinecolor="rgba(148,163,184,0.22)")
 
 

@@ -25,12 +25,35 @@ def read_single_file(file_or_path: str | Path | BinaryIO) -> pd.DataFrame:
     if hasattr(file_or_path, "seek"):
         file_or_path.seek(0)
     if suffix == ".csv":
-        return pd.read_csv(file_or_path)
+        frame = pd.read_csv(file_or_path)
+        return _coerce_mixed_numeric_columns(frame)
     if suffix in {".xlsx", ".xls"}:
-        return pd.read_excel(file_or_path)
+        frame = pd.read_excel(file_or_path)
+        return _coerce_mixed_numeric_columns(frame)
     if suffix == ".parquet":
-        return pd.read_parquet(file_or_path)
+        frame = pd.read_parquet(file_or_path)
+        return _coerce_mixed_numeric_columns(frame)
     raise ValueError(f"지원하지 않는 파일 형식입니다: {suffix}")
+
+
+def _coerce_mixed_numeric_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """Convert mixed numeric/string columns to numeric while coercing strings to NaN."""
+    if df is None or df.empty:
+        return df
+    frame = df.copy()
+    for col in frame.columns:
+        series = frame[col]
+        if not pd.api.types.is_object_dtype(series) and not pd.api.types.is_string_dtype(series):
+            continue
+        non_null = series.dropna()
+        if non_null.empty:
+            continue
+        numeric = pd.to_numeric(series, errors="coerce")
+        numeric_count = int(numeric.notna().sum())
+        non_null_count = int(non_null.shape[0])
+        if 0 < numeric_count < non_null_count:
+            frame[col] = numeric
+    return frame
 
 
 def preview_dataframe(df: pd.DataFrame, rows: int = 100, max_columns: int = 80) -> pd.DataFrame:
