@@ -1,0 +1,11 @@
+streamlit
+pandas
+numpy
+scipy
+scikit-learn
+plotly
+openpyxl
+pyarrow
+pyyaml
+matplotlib
+kaleido
