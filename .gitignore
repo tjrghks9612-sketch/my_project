@@ -1,42 +1,8 @@
-# Python
 __pycache__/
-*.py[cod]
-*$py.class
+*.pyc
 .pytest_cache/
-.mypy_cache/
-.ruff_cache/
-
-# Virtual environments
-.venv/
-venv/
-env/
-
-# Local settings and secrets
-.env
-.env.*
-*.local
-.streamlit/secrets.toml
-
-# Build and packaging outputs
-build/
-dist/
-*.egg-info/
-*.spec
-
-# Generated outputs and logs
-output/
-outputs/
+output/cache/
+output/*_run/
+temp/
 logs/
 *.log
-
-# Archives exported outside source control
-*.zip
-*.7z
-*.tar
-*.tar.gz
-
-# OS and editor noise
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
